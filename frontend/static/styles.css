@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
 
+:root {
+    --primary-color: yellowgreen;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -8,6 +12,7 @@
 
 body {
     background-color: black;
+    color: white;
     font-family: "Open Sans", sans-serif;
 }
 
@@ -28,4 +33,37 @@ body {
     margin-inline: 10px;
     color: white;
     text-decoration: none;
+}
+
+.navbar-links:hover {
+    color: var(--primary-color);
+}
+
+#registration-form, #login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#registration-form > *, #login-form > * {
+    margin: 2.5px;
+}
+
+.form-inputs {
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+}
+
+#form-button {
+    margin-top: 5px;
+    padding: 5px;
+    width: 100px;
+    background-color: var(--primary-color);
+    font-family: "Open Sans", sans-serif;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
