@@ -36,7 +36,7 @@ func main() {
 
     router := gin.Default()
     router.Static("/static", "../frontend/static")
-    routes.HandleRoutes(router)
+    routes.HandleRoutes(router, database)
     
     if err := router.Run(":8080"); err != nil {
         log.Fatal(err)
