@@ -4,6 +4,7 @@ import (
     "github.com/gin-gonic/gin"
     "net/http"
     "database/sql"
+    "github.com/gin-contrib/sessions"
     "golang.org/x/crypto/bcrypt"
 )
 
@@ -49,5 +50,38 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
 
     router.GET("/login", func(context *gin.Context) {
         context.File("../frontend/static/login.html")
+    })
+
+    router.POST("/login", func(context *gin.Context) {
+        usernameInput := context.PostForm("username-input")
+        passwordInput := context.PostForm("password-input")
+
+        var storedPassword string
+        err := database.QueryRow("SELECT password FROM users WHERE username = ?", usernameInput).Scan(&storedPassword)
+        if err != nil {
+            if err == sql.ErrNoRows {
+                context.JSON(http.StatusUnauthorized, gin.H{"error": "Username does not exist"})
+                return
+            }
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+
+        err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(passwordInput))
+        if err != nil {
+            context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
+            return
+        }
+
+        session := sessions.Default(context)
+        session.Set("username", usernameInput)
+        session.Save()
+
+        context.Redirect(http.StatusSeeOther, "/profile/" + usernameInput)
+    })
+
+    router.GET("/profile/:username", func(context *gin.Context) {
+        requestedUsername := context.Param("username")
+        context.HTML(http.StatusOK, "profile.html", gin.H{"username": requestedUsername})
     })
 }

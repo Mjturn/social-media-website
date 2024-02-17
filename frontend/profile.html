@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ .username }}</title>
+        <link rel="stylesheet" type="text/css" href="../static/styles.css">
+    </head>
+    <body>
+        <header>
+            <nav id="navbar">
+                <ul id="navbar-links-list">
+                    <li><a class="navbar-links" href="/">Home</a></li>
+                    <li><a class="navbar-links" href="/register">Register</a></li>
+                    <li><a class="navbar-links" href="/login">Log In</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <h1 id="profile-heading">{{ .username }}</h1>
+        </main>
+    </body>
+</html>
