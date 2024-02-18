@@ -10,11 +10,21 @@ import (
 
 func HandleRoutes(router *gin.Engine, database *sql.DB) {
     router.GET("/", func(context *gin.Context) {
-        context.File("../frontend/static/index.html")
+        session := sessions.Default(context)
+        username := session.Get("username")
+
+        context.HTML(http.StatusOK, "index.html", gin.H {
+            "isLoggedIn": username != nil,
+        })
     })
-    
+
     router.GET("/register", func(context *gin.Context) {
-        context.File("../frontend/static/register.html")
+        session := sessions.Default(context)
+        username := session.Get("username")
+
+        context.HTML(http.StatusOK, "register.html", gin.H {
+            "isLoggedIn": username != nil,
+        })
     })
 
     router.POST("/register", func(context *gin.Context) {
@@ -49,7 +59,12 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
     })
 
     router.GET("/login", func(context *gin.Context) {
-        context.File("../frontend/static/login.html")
+        session := sessions.Default(context)
+        username := session.Get("username")
+
+        context.HTML(http.StatusOK, "login.html", gin.H {
+            "isLoggedIn": username != nil,
+        })
     })
 
     router.POST("/login", func(context *gin.Context) {
@@ -80,8 +95,36 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
         context.Redirect(http.StatusSeeOther, "/profile/" + usernameInput)
     })
 
+    router.POST("/logout", func(context *gin.Context) {
+        session := sessions.Default(context)
+        session.Clear()
+        session.Save()
+
+        context.SetCookie("user_session", "", -1, "/", "", false, true)
+
+        context.Redirect(http.StatusSeeOther, "/")
+    })
+
     router.GET("/profile/:username", func(context *gin.Context) {
         requestedUsername := context.Param("username")
-        context.HTML(http.StatusOK, "profile.html", gin.H{"username": requestedUsername})
+
+        var count int
+        err := database.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", requestedUsername).Scan(&count)
+        if err != nil {
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+
+        if count == 1 {
+            session := sessions.Default(context)
+            username := session.Get("username")
+
+            context.HTML(http.StatusOK, "profile.html", gin.H {
+                "username": requestedUsername,
+                "isLoggedIn": username != nil,
+            })
+        } else {
+            context.String(http.StatusNotFound, "User not found")
+        }
     })
 }
