@@ -112,3 +112,13 @@ body {
 .post-paragraphs {
     text-align: center;
 }
+
+#posts-heading {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#posts {
+    margin: 5px;
+    text-align: center;
+}

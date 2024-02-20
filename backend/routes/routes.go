@@ -1,6 +1,7 @@
 package routes
 
 import (
+    "time"
     "github.com/gin-gonic/gin"
     "net/http"
     "database/sql"
@@ -107,9 +108,54 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
 
     router.GET("/profile/:username", func(context *gin.Context) {
         requestedUsername := context.Param("username")
+        
+        type Post struct {
+            Content string
+            CreatedAt time.Time
+        }
 
+        var userID int
+        err := database.QueryRow("SELECT id FROM users WHERE username = ?", requestedUsername).Scan(&userID)
+        if err != nil {
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+
+        rows, err := database.Query("SELECT content, created_at FROM posts WHERE user_id = ?", userID)
+        if err != nil {
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+        defer rows.Close()
+
+        var posts []Post
+        var createdAtString string
+
+        for rows.Next() {
+            var post Post
+            
+            err = rows.Scan(&post.Content, &createdAtString)
+            if err != nil {
+                context.AbortWithError(http.StatusInternalServerError, err)
+                return
+            }
+
+            post.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdAtString)
+            if err != nil {
+                context.AbortWithError(http.StatusInternalServerError, err)
+                return
+            }
+
+            posts = append(posts, post)
+        }
+
+        if err = rows.Err(); err != nil {
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+        
         var count int
-        err := database.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", requestedUsername).Scan(&count)
+        err = database.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", requestedUsername).Scan(&count)
         if err != nil {
             context.AbortWithError(http.StatusInternalServerError, err)
             return
@@ -123,12 +169,31 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
                 "requestedUsername": requestedUsername,
                 "username": username,
                 "isLoggedIn": username != nil,
+                "posts": posts,
             })
         } else {
             context.String(http.StatusNotFound, "User not found")
         }
+
     })
 
     router.POST("/profile/:username/create-post", func(context *gin.Context) {
+        requestedUsername := context.Param("username")
+        postContent := context.PostForm("post-form-input")
+
+        var userID int
+        err := database.QueryRow("SELECT id FROM users WHERE username = ?", requestedUsername).Scan(&userID)
+        if err != nil {
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+
+        _, err = database.Exec("INSERT INTO posts (user_id, content) VALUES (?, ?)", userID, postContent)
+        if err != nil {
+            context.AbortWithError(http.StatusInternalServerError, err)
+            return
+        }
+        
+        context.Redirect(http.StatusSeeOther, "/profile/" + requestedUsername)
     })
 }

@@ -16,7 +16,7 @@
             {{ if .isLoggedIn }}
                 {{ if eq .username .requestedUsername }}
                     <form id="post-form" method="POST" action="/profile/{{ .requestedUsername }}/create-post">
-                        <textarea id="post-form-input"></textarea>
+                        <textarea id="post-form-input" name="post-form-input" required></textarea>
                         <button type="submit" id="form-button">Post</button>
                     </form>
                 {{ else }}
@@ -25,6 +25,15 @@
             {{ else }}
                 <p class="post-paragraphs">You must be logged in to create a post.</p>
             {{ end }}
+
+            <h2 id="posts-heading">Posts</h2>
+            <ul>
+                {{ range .posts }}
+                    <li id="posts">
+                        {{ .Content }} - <i>{{ .CreatedAt.Format "Posted on Monday, January 2nd, 2006 at 3:04 PM" }}</i>
+                    </li>
+                {{ end }}
+            </ul>
         </main>
     </body>
 </html>
