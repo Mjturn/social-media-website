@@ -120,11 +120,15 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
             username := session.Get("username")
 
             context.HTML(http.StatusOK, "profile.html", gin.H {
-                "username": requestedUsername,
+                "requestedUsername": requestedUsername,
+                "username": username,
                 "isLoggedIn": username != nil,
             })
         } else {
             context.String(http.StatusNotFound, "User not found")
         }
+    })
+
+    router.POST("/profile/:username/create-post", func(context *gin.Context) {
     })
 }

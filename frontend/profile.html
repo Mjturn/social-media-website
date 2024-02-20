@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{ .username }}</title>
+        <title>{{ .requestedUsername }}</title>
         <link rel="stylesheet" type="text/css" href="../static/styles.css">
     </head>
     <body>
@@ -11,7 +11,20 @@
             {{ template "navbar.html" . }}
         </header>
         <main>
-            <h1 id="profile-heading">{{ .username }}</h1>
+            <h1 id="profile-heading">{{ .requestedUsername }}</h1>
+
+            {{ if .isLoggedIn }}
+                {{ if eq .username .requestedUsername }}
+                    <form id="post-form" method="POST" action="/profile/{{ .requestedUsername }}/create-post">
+                        <textarea id="post-form-input"></textarea>
+                        <button type="submit" id="form-button">Post</button>
+                    </form>
+                {{ else }}
+                    <p class="post-paragraphs">You can only post on your own profile.</p>
+                {{ end }}
+            {{ else }}
+                <p class="post-paragraphs">You must be logged in to create a post.</p>
+            {{ end }}
         </main>
     </body>
 </html>
