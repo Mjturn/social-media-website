@@ -15,7 +15,7 @@
 
             {{ if .isLoggedIn }}
                 {{ if eq .username .requestedUsername }}
-                    <form id="post-form" method="POST" action="/profile/{{ .requestedUsername }}/create-post">
+                    <form id="post-form" method="POST" action="/profile/{{ .requestedUsername }}/post">
                         <textarea id="post-form-input" name="post-form-input" required></textarea>
                         <button type="submit" id="form-button">Post</button>
                     </form>

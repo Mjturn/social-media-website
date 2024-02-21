@@ -4,6 +4,8 @@
         <li><a class="navbar-links" href="/register">Register</a></li>
 
         {{ if .isLoggedIn }}
+            <li><a class="navbar-links" href="/profile/{{ .username }}">Profile</a></li>
+            
             <form method="POST" action="/logout">
                 <li><button type="submit" id="logout-button">Log Out</button></li>
             </form>

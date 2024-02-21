@@ -16,6 +16,7 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
 
         context.HTML(http.StatusOK, "index.html", gin.H {
             "isLoggedIn": username != nil,
+            "username": username,
         })
     })
 
@@ -25,6 +26,7 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
 
         context.HTML(http.StatusOK, "register.html", gin.H {
             "isLoggedIn": username != nil,
+            "username": username,
         })
     })
 
@@ -65,6 +67,7 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
 
         context.HTML(http.StatusOK, "login.html", gin.H {
             "isLoggedIn": username != nil,
+            "username": username,
         })
     })
 
@@ -177,7 +180,7 @@ func HandleRoutes(router *gin.Engine, database *sql.DB) {
 
     })
 
-    router.POST("/profile/:username/create-post", func(context *gin.Context) {
+    router.POST("/profile/:username/post", func(context *gin.Context) {
         requestedUsername := context.Param("username")
         postContent := context.PostForm("post-form-input")
 
